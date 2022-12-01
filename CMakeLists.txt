@@ -74,10 +74,6 @@ if(GnuPlotIostream_BuildExamples)
   endforeach()
 endif()
 
-# Export ament targets
-ament_export_targets(gnuplot-iostream)
-ament_export_include_directories(include)
-
 # Install includes
 install(
   DIRECTORY include/
