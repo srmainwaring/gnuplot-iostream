@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(gnuplot_iostream)
+project(gnuplot-iostream)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
@@ -17,16 +17,17 @@ find_package(Boost REQUIRED COMPONENTS
 )
 
 # Target.
-add_library(gnuplot_iostream INTERFACE)
-target_include_directories(gnuplot_iostream INTERFACE
+add_library(gnuplot-iostream INTERFACE)
+target_include_directories(gnuplot-iostream INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include/${PROJECT_NAME}>
+    $<INSTALL_INTERFACE:include>
 )
-target_link_libraries(gnuplot_iostream INTERFACE
+target_link_libraries(gnuplot-iostream INTERFACE
     Boost::iostreams
     Boost::system
     Boost::filesystem
 )
+ament_target_dependencies(gnuplot-iostream)
 
 # Tests
 if(GnuPlotIostream_BuildTests)
@@ -42,7 +43,7 @@ if(GnuPlotIostream_BuildTests)
     target_compile_features(${atest} PRIVATE cxx_std_17)
     target_compile_options(${atest} PRIVATE -Wall -Wextra)
     target_link_libraries(${atest} PRIVATE
-      gnuplot_iostream
+      gnuplot-iostream
       boost_iostreams
       boost_system
       boost_filesystem
@@ -63,21 +64,45 @@ if(GnuPlotIostream_BuildExamples)
     target_compile_features(${an_example} PRIVATE cxx_std_17)
     target_compile_options(${an_example} PRIVATE -Wall -Wextra)
     target_link_libraries(${an_example} PRIVATE 
-      gnuplot_iostream
+      gnuplot-iostream
       util
-      )
+    )
+    ament_target_dependencies(${an_example}
+      # gnuplot-iostream
+      # util
+    )
   endforeach()
 endif()
 
-# Install rules
-install(TARGETS ${PROJECT_NAME}
+# Export ament targets
+ament_export_targets(gnuplot-iostream)
+ament_export_include_directories(include)
+
+# Install includes
+install(
+  DIRECTORY include/
+  DESTINATION include
+)
+
+# Install targets
+install(
+  TARGETS ${PROJECT_NAME}
   EXPORT export_${PROJECT_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
+  INCLUDES DESTINATION include
 )
 
-install(DIRECTORY include/ DESTINATION include/${PROJECT_NAME})
+# Install executables
+install(
+  TARGETS
+    example-data-1d
+    example-data-2d
+    example-interactive
+    example-misc
+  DESTINATION lib/${PROJECT_NAME}
+)
 
 # Tests
 if(BUILD_TESTING)
